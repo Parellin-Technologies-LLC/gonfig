@@ -1,0 +1,31 @@
+{
+	"name": "gonfig",
+	"version": "0.0.0",
+	"description": "A simple configuration module for Node.js",
+	"main": "index.js",
+	"scripts": {
+		"clean": "npm outdated && npm prune",
+		"cleanInstall": "rm -rf node_modules/ package-lock.json && npm i",
+		"docs": "jsdoc -c jsdocs.js -r",
+		"lint": "eslint .",
+		"preversion": "npm test",
+		"test": "mocha --trace-warnings"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/iSkore/gonfig.git"
+	},
+	"keywords": [
+		"config",
+		"editor"
+	],
+	"author": "Parellin Technologies LLC.",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/iSkore/gonfig/issues"
+	},
+	"homepage": "https://github.com/iSkore/gonfig#readme",
+	"dependencies": {
+		"@parellin/lightmap": "0.0.9"
+	}
+}
