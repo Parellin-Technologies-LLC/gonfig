@@ -5,46 +5,45 @@
  *******************************************************************************************************/
 'use strict';
 
-const LightMap = require( '@parellin/lightmap' );
+const
+	{
+		extname,
+		join
+	}        = require( 'path' ),
+	LightMap = require( '@parellin/lightmap' );
 
-class Gonfig extends LightMap
+class Gonfig
 {
 	constructor()
 	{
-		super();
-
-		return new Proxy( this, {
-			get( target, key, proxy )
-			{
-				console.log( `getting ${ key }` );
-				return target.get( key );
-			},
-			set( target, key, val, proxy )
-			{
-				console.log( `setting ${ key }` );
-				return target.set( key, val );
-			},
-			has( target, key, proxy )
-			{
-
-			}
-		} );
+		this.LEVEL = {
+			NONE: 'none',
+			BASIC: 'basic',
+			VERBOSE: 'verbose'
+		};
 
 		this.ENV = {
+			UNKNOWN: 'unknown',
 			TEST: 'test',
 			DEBUG: 'debug',
 			DEVELOPMENT: 'development',
 			PRODUCTION: 'production'
 		};
 
-		this.env = env || this.ENV.DEBUG;
+		this.symenv = '$env';
+		this.sympkg = '$pkg';
 
-		this.refresh( this.env );
+		this.config = new LightMap();
 	}
 
 	invalidConfig()
 	{
-		throw new Error( `Configuration Error - ${ this.env } is not a valid environment` );
+		throw new Error( 'Configuration Error - invalid environment settings' );
+	}
+
+	isValidLogLevel( log )
+	{
+		return this.LEVEL.hasOwnProperty( log );
 	}
 
 	isValidEnvironment( env )
@@ -62,12 +61,19 @@ class Gonfig extends LightMap
 		return this.env === this.ENV.DEVELOPMENT;
 	}
 
-	refresh( env = this.ENV.DEBUG )
+	start()
 	{
-		this.env = env;
+		this.env = this.env || this.ENV.DEBUG;
+		this.log = this.log || this.LEVEL.BASIC;
 
 		this.debug = this.env === this.ENV.DEBUG;
 		this.test  = this.env === this.ENV.TEST;
+
+		if( this.debug ) {
+			this.log = this.LEVEL.VERBOSE;
+		} else if( this.test ) {
+			this.log = this.LEVEL.NONE;
+		}
 
 		if( this.env === this.ENV.DEBUG || this.env === this.ENV.TEST ) {
 			this.env = this.ENV.DEVELOPMENT;
@@ -79,41 +85,83 @@ class Gonfig extends LightMap
 
 		!this.isValidEnvironment( this.env ) || this.invalidConfig();
 
+		this.config.set( this.symenv, process.env );
+		this.config.set( this.sympkg, require( join( process.cwd(), 'package.json' ) ) );
+
+		process.title        = `${ this.config.get( 'name' ) }-v${ this.config.get( 'version' ) }`;
 		process.env.NODE_ENV = this.env;
+
+		return this;
+	}
+
+	setLogLevel( log = this.LEVEL.BASIC )
+	{
+		!this.isValidLogLevel( log ) || this.invalidConfig();
+		this.log = log;
+		return this;
+	}
+
+	setEnvironment( env = this.ENV.DEBUG )
+	{
+		!this.isValidEnvironment( env ) || this.invalidConfig();
+		this.env = env;
+		return this;
+	}
+
+	load( key, value )
+	{
+		if( extname( value ) === '.json' ) {
+			value = require( value );
+		}
+
+		this.config.set( key, value );
+
+		return this;
+	}
+
+	get( key )
+	{
+		return this.config.has( key ) ? this.config.get( key ) : this;
+	}
+
+	getReport()
+	{
+		const timestamp = new Date();
+
+		return this.log === this.LEVEL.VERBOSE ? {
+			timestamp,
+			name: this.config.get( this.sympkg ).name,
+			version: this.config.get( this.sympkg ).version,
+			nodeVersion: process.versions.node,
+			opensslVersion: process.versions.openssl,
+			platform: process.platform,
+			arch: process.arch,
+			cwd: process.cwd()
+		} : this.log === this.LEVEL.BASIC ? {
+			timestamp,
+			name: this.config.get( this.sympkg ).name,
+			version: this.config.get( this.sympkg ).version,
+			nodeVersion: process.versions.node,
+			cwd: process.cwd()
+		} : {
+			timestamp,
+			name: this.config.get( 'name' ),
+			version: this.config.get( 'version' )
+		};
 	}
 }
 
+const gonfig = new Gonfig();
 
-const handler = {
-	get( target, key, ref )
-	{
-		let val = Reflect.get( ...arguments );
+gonfig
+	.setLogLevel( gonfig.LEVEL.BASIC )
+	.setEnvironment( gonfig.ENV.DEBUG )
+	.load( 'db', '/Users/trashcan/GitHub/gonfig/config/database.json' )
+	.load( 'another', '/Users/trashcan/GitHub/gonfig/config/database.json' )
+	.start();
 
-		console.log( `getting ${ key }` );
+console.log( gonfig );
+console.log( gonfig.getReport() );
 
-		if( typeof val === 'string' ) {
-			val = val.replace( target );
-		}
-
-		return val;
-	},
-	set( target, key, val, ref )
-	{
-		console.log( `setting ${ key }` );
-		// Maybe set $ref to compress object size IF there's an object match?
-
-		return Reflect.set( ...arguments );
-	}
-};
-
-const data = new Gonfig();
-
-data.ok = 'cool';
-data.co = 'yo';
-
-console.log( data.ok );
-// key|(\$ref:key)
-
-
-
+console.log( process.getgid() );
 module.exports = new Gonfig();
