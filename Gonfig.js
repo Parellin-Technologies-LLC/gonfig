@@ -127,7 +127,7 @@ class Gonfig extends LightMap
 	{
 		this.refreshIfNotLoaded();
 
-		if( extname( value ) === '.json' ) {
+		if( /(.js(on)?)$/.test( extname( value ) ) ) {
 			value = require( value );
 		}
 
