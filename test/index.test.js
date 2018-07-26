@@ -22,7 +22,6 @@ describe( 'Testing Gonfig...', () => {
 		expect( gonfig ).to.have.property( 'ENV' );
 		expect( gonfig ).to.have.property( 'symenv' );
 		expect( gonfig ).to.have.property( 'sympkg' );
-		expect( gonfig ).to.have.property( 'config' );
 		expect( gonfig ).to.not.have.property( 'env' );
 	} );
 
@@ -38,6 +37,20 @@ describe( 'Testing Gonfig...', () => {
 		expect( gonfig ).to.have.property( 'env' ).and.eq( 'development' );
 	} );
 
+	it( 'should set some variable', () => {
+		gonfig.set( 'number', 100 );
+
+		expect( gonfig.has( 'number' ) ).to.eq( true );
+	} );
+
+	it( 'should get some variable', () => {
+		expect( gonfig.get( 'number' ) ).to.eq( 100 );
+	} );
+
+	it( 'should delete some variable', () => {
+		expect( gonfig.delete( 'number' ) ).to.eq( true );
+	} );
+
 	it( 'should load database json config', () => {
 		gonfig.load( 'db', resolve( 'test/database.json' ) );
 
@@ -50,10 +63,10 @@ describe( 'Testing Gonfig...', () => {
 
 		expect( gonfig ).to.have.property( 'debug' ).and.eq( false );
 		expect( gonfig ).to.have.property( 'test' ).and.eq( false );
-		expect( gonfig.config.has( '$env' ) ).to.eq( true );
-		expect( gonfig.config.get( '$env' ) ).to.have.property( 'NODE_ENV' ).and.eq( gonfig.env );
-		expect( gonfig.config.has( '$pkg' ) ).to.eq( true );
-		expect( gonfig.config.get( '$pkg' ) ).to.have.property( 'version' ).and.eq( version );
+		expect( gonfig.has( '$env' ) ).to.eq( true );
+		expect( gonfig.get( '$env' ) ).to.have.property( 'NODE_ENV' ).and.eq( gonfig.env );
+		expect( gonfig.has( '$pkg' ) ).to.eq( true );
+		expect( gonfig.get( '$pkg' ) ).to.have.property( 'version' ).and.eq( version );
 	} );
 
 	it( 'should report program information', () => {

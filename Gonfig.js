@@ -12,10 +12,12 @@ const
 	}        = require( 'path' ),
 	LightMap = require( '@parellin/lightmap' );
 
-class Gonfig
+class Gonfig extends LightMap
 {
 	constructor()
 	{
+		super();
+
 		this.LEVEL = {
 			NONE: 'none',
 			BASIC: 'basic',
@@ -32,8 +34,6 @@ class Gonfig
 
 		this.symenv = '$env';
 		this.sympkg = '$pkg';
-
-		this.config = new LightMap();
 	}
 
 	invalidConfig()
@@ -85,10 +85,10 @@ class Gonfig
 
 		!this.isValidEnvironment( this.env ) || this.invalidConfig();
 
-		this.config.set( this.symenv, process.env );
-		this.config.set( this.sympkg, require( join( process.cwd(), 'package.json' ) ) );
+		this.set( this.symenv, process.env );
+		this.set( this.sympkg, require( join( process.cwd(), 'package.json' ) ) );
 
-		process.title        = `${ this.config.get( 'name' ) }-v${ this.config.get( 'version' ) }`;
+		process.title        = `${ this.get( 'name' ) }-v${ this.get( 'version' ) }`;
 		process.env.NODE_ENV = this.env;
 
 		return this;
@@ -114,26 +114,19 @@ class Gonfig
 			value = require( value );
 		}
 
-		this.config.set( key, value );
-
-		return this;
-	}
-
-	get( key )
-	{
-		return this.config.has( key ) ? this.config.get( key ) : this;
+		return this.set( key, value );
 	}
 
 	getReport()
 	{
 		const
 			timestamp    = new Date(),
-			commitNumber = ( this.config.get( this.symenv ).npm_package_gitHead || '' ).substr( 0, 6 );
+			commitNumber = ( this.get( this.symenv ).npm_package_gitHead || '' ).substr( 0, 6 );
 
 		return this.log === this.LEVEL.VERBOSE ? {
 			timestamp,
-			name: this.config.get( this.sympkg ).name,
-			version: this.config.get( this.sympkg ).version,
+			name: this.get( this.sympkg ).name,
+			version: this.get( this.sympkg ).version,
 			nodeVersion: process.version,
 			opensslVersion: process.versions.openssl,
 			platform: process.platform,
@@ -142,15 +135,15 @@ class Gonfig
 			commitNumber
 		} : this.log === this.LEVEL.BASIC ? {
 			timestamp,
-			name: this.config.get( this.sympkg ).name,
-			version: this.config.get( this.sympkg ).version,
+			name: this.get( this.sympkg ).name,
+			version: this.get( this.sympkg ).version,
 			nodeVersion: process.versions.node,
 			cwd: process.cwd(),
 			commitNumber
 		} : {
 			timestamp,
-			name: this.config.get( 'name' ),
-			version: this.config.get( 'version' )
+			name: this.get( 'name' ),
+			version: this.get( 'version' )
 		};
 	}
 

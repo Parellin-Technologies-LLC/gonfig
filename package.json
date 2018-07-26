@@ -13,18 +13,18 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/iSkore/gonfig.git"
+		"url": "git+https://github.com/Parellin-Technologies-LLC/gonfig.git"
 	},
 	"keywords": [
 		"config",
 		"editor"
 	],
-	"author": "Parellin Technologies LLC.",
+	"author": "Parellin Technologies LLC",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/iSkore/gonfig/issues"
+		"url": "https://github.com/Parellin-Technologies-LLC/gonfig/issues"
 	},
-	"homepage": "https://github.com/iSkore/gonfig#readme",
+	"homepage": "https://github.com/Parellin-Technologies-LLC/gonfig#readme",
 	"dependencies": {
 		"@parellin/lightmap": "0.0.9"
 	},
