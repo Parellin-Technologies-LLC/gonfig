@@ -63,10 +63,18 @@ describe( 'Testing Gonfig...', () => {
 
 		expect( gonfig ).to.have.property( 'debug' ).and.eq( false );
 		expect( gonfig ).to.have.property( 'test' ).and.eq( false );
-		expect( gonfig.has( '$env' ) ).to.eq( true );
-		expect( gonfig.get( '$env' ) ).to.have.property( 'NODE_ENV' ).and.eq( gonfig.env );
-		expect( gonfig.has( '$pkg' ) ).to.eq( true );
-		expect( gonfig.get( '$pkg' ) ).to.have.property( 'version' ).and.eq( version );
+		expect( gonfig.has( gonfig.symenv ) ).to.eq( true );
+		expect( gonfig.get( gonfig.symenv ) ).to.have.property( 'NODE_ENV' ).and.eq( gonfig.env );
+		expect( gonfig.has( gonfig.sympkg ) ).to.eq( true );
+		expect( gonfig.get( gonfig.sympkg ) ).to.have.property( 'version' ).and.eq( version );
+	} );
+
+	it( 'should get a environment variable from fallover', () => {
+		expect( gonfig.get( 'npm_package_name' ) ).to.eq( name );
+	} );
+
+	it( 'should get a package variable from fallover', () => {
+		expect( gonfig.get( 'name' ) ).to.eq( name );
 	} );
 
 	it( 'should report program information', () => {

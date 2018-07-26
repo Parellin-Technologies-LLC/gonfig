@@ -31,8 +31,8 @@ class Gonfig extends LightMap
 			PRODUCTION: 'production'
 		};
 
-		this.symenv = '$env';
-		this.sympkg = '$pkg';
+		this.symenv = Symbol( '$env' );
+		this.sympkg = Symbol( '$pkg' );
 		this.stdout = process.stdout.write;
 
 		this.cwd     = process.cwd();
@@ -124,6 +124,13 @@ class Gonfig extends LightMap
 		return this;
 	}
 
+	get( key )
+	{
+		return super.has( key ) ? super.get( key ) :
+			super.get( this.symenv ).hasOwnProperty( key ) ? super.get( this.symenv )[ key ] :
+				super.get( this.sympkg ).hasOwnProperty( key ) ? super.get( this.sympkg )[ key ] : null;
+	}
+
 	load( key, value )
 	{
 		this.refreshIfNotLoaded();
@@ -132,7 +139,7 @@ class Gonfig extends LightMap
 			if( !value.startsWith( this.cwd ) ) {
 				value = join( this.cwd, value );
 			}
-			
+
 			value = require( value );
 		}
 
