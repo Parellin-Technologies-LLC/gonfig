@@ -35,6 +35,7 @@ class Gonfig extends LightMap
 		this.sympkg = '$pkg';
 		this.stdout = process.stdout.write;
 
+		this.cwd     = process.cwd();
 		this.isReady = false;
 	}
 
@@ -128,6 +129,10 @@ class Gonfig extends LightMap
 		this.refreshIfNotLoaded();
 
 		if( /(.js(on)?)$/.test( extname( value ) ) ) {
+			if( !value.startsWith( this.cwd ) ) {
+				value = join( this.cwd, value );
+			}
+			
 			value = require( value );
 		}
 
