@@ -61,7 +61,7 @@ class Gonfig
 		return this.env === this.ENV.DEVELOPMENT;
 	}
 
-	start()
+	refresh()
 	{
 		this.env = this.env || this.ENV.DEBUG;
 		this.log = this.log || this.LEVEL.BASIC;
@@ -126,42 +126,62 @@ class Gonfig
 
 	getReport()
 	{
-		const timestamp = new Date();
+		const
+			timestamp    = new Date(),
+			commitNumber = ( this.config.get( this.symenv ).npm_package_gitHead || '' ).substr( 0, 6 );
 
 		return this.log === this.LEVEL.VERBOSE ? {
 			timestamp,
 			name: this.config.get( this.sympkg ).name,
 			version: this.config.get( this.sympkg ).version,
-			nodeVersion: process.versions.node,
+			nodeVersion: process.version,
 			opensslVersion: process.versions.openssl,
 			platform: process.platform,
 			arch: process.arch,
-			cwd: process.cwd()
+			cwd: process.cwd(),
+			commitNumber
 		} : this.log === this.LEVEL.BASIC ? {
 			timestamp,
 			name: this.config.get( this.sympkg ).name,
 			version: this.config.get( this.sympkg ).version,
 			nodeVersion: process.versions.node,
-			cwd: process.cwd()
+			cwd: process.cwd(),
+			commitNumber
 		} : {
 			timestamp,
 			name: this.config.get( 'name' ),
 			version: this.config.get( 'version' )
 		};
 	}
+
+	getErrorReport()
+	{
+		const _                 = Error.prepareStackTrace;
+		Error.prepareStackTrace = ( _, stack ) => stack;
+		const stack             = new Error().stack.slice( 1 );
+		Error.prepareStackTrace = _;
+
+		const stackTrace = stack.map( callee => {
+			return {
+				type: callee.getTypeName(),
+				function: callee.getFunction() || callee.getFunctionName(),
+				method: callee.getMethodName(),
+				file: callee.getFileName(),
+				line: callee.getLineNumber(),
+				column: callee.getColumnNumber(),
+				origin: callee.getEvalOrigin(),
+				topLevel: callee.isToplevel(),
+				isEval: callee.isEval(),
+				isNative: callee.isNative(),
+				isConstructor: callee.isConstructor()
+			};
+		} );
+
+		return {
+			stackTrace,
+			...this.getReport()
+		};
+	}
 }
 
-const gonfig = new Gonfig();
-
-gonfig
-	.setLogLevel( gonfig.LEVEL.BASIC )
-	.setEnvironment( gonfig.ENV.DEBUG )
-	.load( 'db', '/Users/trashcan/GitHub/gonfig/config/database.json' )
-	.load( 'another', '/Users/trashcan/GitHub/gonfig/config/database.json' )
-	.start();
-
-console.log( gonfig );
-console.log( gonfig.getReport() );
-
-console.log( process.getgid() );
 module.exports = new Gonfig();
