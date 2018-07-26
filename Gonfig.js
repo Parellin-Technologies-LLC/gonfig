@@ -25,7 +25,6 @@ class Gonfig extends LightMap
 		};
 
 		this.ENV = {
-			UNKNOWN: 'unknown',
 			TEST: 'test',
 			DEBUG: 'debug',
 			DEVELOPMENT: 'development',
@@ -34,6 +33,9 @@ class Gonfig extends LightMap
 
 		this.symenv = '$env';
 		this.sympkg = '$pkg';
+		this.stdout = process.stdout.write;
+
+		this.isReady = false;
 	}
 
 	invalidConfig()
@@ -61,9 +63,16 @@ class Gonfig extends LightMap
 		return this.env === this.ENV.DEVELOPMENT;
 	}
 
+	refreshIfNotLoaded()
+	{
+		return this.isReady || this.refresh();
+	}
+
 	refresh()
 	{
-		this.env = this.env || this.ENV.DEBUG;
+		this.isReady = true;
+
+		this.env = this.env || this.ENV.DEVELOPMENT;
 		this.log = this.log || this.LEVEL.BASIC;
 
 		this.debug = this.env === this.ENV.DEBUG;
@@ -73,6 +82,12 @@ class Gonfig extends LightMap
 			this.log = this.LEVEL.VERBOSE;
 		} else if( this.test ) {
 			this.log = this.LEVEL.NONE;
+		}
+
+		if( this.log === this.LEVEL.NONE ) {
+			process.stdout.write = () => {};
+		} else {
+			process.stdout.write = this.stdout;
 		}
 
 		if( this.env === this.ENV.DEBUG || this.env === this.ENV.TEST ) {
@@ -110,6 +125,8 @@ class Gonfig extends LightMap
 
 	load( key, value )
 	{
+		this.refreshIfNotLoaded();
+
 		if( extname( value ) === '.json' ) {
 			value = require( value );
 		}
@@ -119,6 +136,8 @@ class Gonfig extends LightMap
 
 	getReport()
 	{
+		this.refreshIfNotLoaded();
+
 		const
 			timestamp    = new Date(),
 			commitNumber = ( this.get( this.symenv ).npm_package_gitHead || '' ).substr( 0, 6 );
