@@ -93,12 +93,12 @@ describe( 'Testing Gonfig...', () => {
 
 	it( 'should report system information', () => {
 		const report = gonfig.getErrorReport();
-
+		
 		expect( report ).to.have.property( 'stackTrace' );
-		expect( report.stackTrace[ 0 ] ).to.have.property( 'function' ).and.eq( 'it' );
-		expect( report.stackTrace[ 0 ] ).to.have.property( 'file' ).and.eq( __filename );
-		expect( report.stackTrace[ 0 ] ).to.have.property( 'line' ).and.be.a( 'number' );
-		expect( report.stackTrace[ 0 ] ).to.have.property( 'column' ).and.be.a( 'number' );
+		expect( report.stackTrace[ 1 ] ).to.have.property( 'function' ).and.eq( 'it' );
+		expect( report.stackTrace[ 1 ] ).to.have.property( 'file' ).and.eq( __filename );
+		expect( report.stackTrace[ 1 ] ).to.have.property( 'line' ).and.be.a( 'number' );
+		expect( report.stackTrace[ 1 ] ).to.have.property( 'column' ).and.be.a( 'number' );
 
 		expect( report ).to.have.property( 'timestamp' );
 		expect( report ).to.have.property( 'name' ).and.eq( name );
