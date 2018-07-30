@@ -76,8 +76,8 @@ class Gonfig extends LightMap
 		this.env = this.env || this.ENV.DEVELOPMENT;
 		this.log = this.log || this.LEVEL.BASIC;
 
-		this.debug = this.env === this.ENV.DEBUG;
-		this.test  = this.env === this.ENV.TEST;
+		this.debug = this.debug || this.env === this.ENV.DEBUG;
+		this.test  = this.test || this.env === this.ENV.TEST;
 
 		if( this.debug ) {
 			this.log = this.LEVEL.VERBOSE;
