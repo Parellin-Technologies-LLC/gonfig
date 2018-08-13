@@ -127,8 +127,8 @@ class Gonfig extends LightMap
 	get( key )
 	{
 		return super.has( key ) ? super.get( key ) :
-			super.get( this.symenv ).hasOwnProperty( key ) ? super.get( this.symenv )[ key ] :
-				super.get( this.sympkg ).hasOwnProperty( key ) ? super.get( this.sympkg )[ key ] : null;
+			( super.get( this.symenv ) || {} ).hasOwnProperty( key ) ? super.get( this.symenv )[ key ] :
+				( super.get( this.sympkg ) || {} ).hasOwnProperty( key ) ? super.get( this.sympkg )[ key ] : null;
 	}
 	
 	load( key, value )
